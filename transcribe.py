@@ -1,6 +1,17 @@
 
 from google.cloud import speech_v1
+from google.cloud import videointelligence
+
 import io
+import json
+import pyrebase
+
+config = json.loads(open('secret/config.json').read())
+
+firebase = pyrebase.initialize_app(config)
+
+# # build paths
+db = firebase.database()
 
 class Transcribe:
     def __init__(self):
@@ -37,9 +48,8 @@ class Transcribe:
             alternative = result.alternatives[0]
             print(u"Transcript: {}".format(alternative.transcript))
         
-    def recognize_v2(self, path):
+    def recognize_v2(self, path, fb_loc):
         #Transcribe speech from a video stored on GCS."""
-        from google.cloud import videointelligence
 
         video_client = videointelligence.VideoIntelligenceServiceClient()
         features = [videointelligence.enums.Feature.SPEECH_TRANSCRIPTION]
@@ -76,9 +86,17 @@ class Transcribe:
                 print('Word level information:')
                 for word_info in alternative.words:
                     word = word_info.word
+                    f_word = ''.join(filter(str.isalpha, word))
+                    f_word = f_word.lower()
                     start_time = word_info.start_time
                     end_time = word_info.end_time
+                    
+                    st_time = int((start_time.seconds + start_time.nanos * 1e-9) * 10)
+                    en_time = int((end_time.seconds + end_time.nanos * 1e-9) * 10)
+                    fb_push_obj = {}
+                    fb_push_obj[str(st_time)] = en_time
                     print('\t{}s - {}s: {}'.format(
                         start_time.seconds + start_time.nanos * 1e-9,
                         end_time.seconds + end_time.nanos * 1e-9,
                         word))
+                    db.child(f'{fb_loc}transcript/{f_word}').update(fb_push_obj)

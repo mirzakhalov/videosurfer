@@ -5,6 +5,7 @@ import os
 from yolo import Yolo
 from apparel import Apparel
 from transcribe import Transcribe
+
 import pyrebase
 import json
 
@@ -42,12 +43,11 @@ def video_to_frames(input_loc, output_loc):
     yolo = Yolo()
     apparel = Apparel()
     transcribe = Transcribe()
-
-    print("Converting video to audio...")
-    import moviepy.editor as mp
+    
     #clip = mp.VideoFileClip("friends.mp4")
     #clip.audio.write_audiofile("friends.mp3")
-    transcribe.recognize_v2("gs://videosurfer-bad23.appspot.com/friends.mp4")
+    stg.child(f'videos/{input_loc}').put(input_loc)
+    transcribe.recognize_v2(f"gs://videosurfer-bad23.appspot.com/videos/{input_loc}", output_loc)
     quit()
 
     # Log the time
