@@ -11,21 +11,28 @@ class Apparel:
 
 
     def detect(self, frame):
-        response = self.fmodel.predict_by_filename(frame)
+        response = self.model.predict_by_filename(frame)
         items = []
-        for concept in response['outputs'][0]['data']['concepts']:
-            if concept['value'] > 0.4:
-                items.append(concept['name'])
+        bounding_box = []
+
+        if 'regions' in response['outputs'][0]['data']:
+            regions = response['outputs'][0]['data']['regions']
+            for region in regions:
+                items.append(region['data']['concepts'][0]['name'])
+                bounding_box.append(region['region_info']['bouding_box'])
                 
-        return items
+        return items, bounding_box
     
 
     def detect_famous(self, frame):
         response = self.fmodel.predict_by_filename(frame)
         celebs = []
+        bounding_box = []
+        
         if 'regions' in response['outputs'][0]['data']:
             regions = response['outputs'][0]['data']['regions']
             for region in regions:
                 celebs.append(region['data']['concepts'][0]['name'])
+                bounding_box.append(region['region_info']['bouding_box'])
             
-        return celebs
+        return celebs, bounding_box

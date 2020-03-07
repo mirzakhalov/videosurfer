@@ -4,6 +4,24 @@ import os
 
 from yolo import Yolo
 from apparel import Apparel
+import pyrebase
+
+config = {
+    "apiKey": "AIzaSyA5SRwsOGxvkL6DLA1DFmL7iIUAVxrTsr0",
+    "authDomain": "videosurfer-bad23.firebaseapp.com",
+    "databaseURL": "https://videosurfer-bad23.firebaseio.com",
+    "projectId": "videosurfer-bad23",
+    "storageBucket": "videosurfer-bad23.appspot.com",
+    "messagingSenderId": "931651516843",
+    "appId": "1:931651516843:web:c5ad09b8a2a6abffeb3aee",
+    "measurementId": "G-RCC2W1BE68"
+}
+
+firebase = pyrebase.initialize_app(config)
+
+# # build paths
+db = firebase.database()
+
 
 def video_to_frames(input_loc, output_loc):
     """Function to extract frames from input video file
@@ -47,8 +65,29 @@ def video_to_frames(input_loc, output_loc):
             filename = output_loc + "/" + str(count + 1) + ".jpg"
             cv2.imwrite(filename, frame)
             print(yolo.detect(frame))
-            print(apparel.detect(filename))
+
+            # FB - Labels
+            label_data = dict({})
+            label_data[str(frames)] = dict({})
+            for label in yolo.detect(frame):
+                if label not in label_data[str(frames)]:
+                    label_data[str(frames)][label] = 1
+                else:
+                    label_data[str(frames)][label] += 1 
+                
+            #db.child(f'{output_loc}/labels').update(label_data)
+
+            
+            items, items_box = apparel.detect(filename)
+            item_obj = dict({})
+            item_obj[str(frames)] = dict({})
+            # FB - Items
+            for i, item in enumerate(items):
+                if item not in item_obj[str(frames)]:
+                    pass
+            print(items)
             print(apparel.detect_famous(filename))
+            print(frames)
             frames = frames + 1
         # If there are no more frames left
         if (count > (video_length-1)):

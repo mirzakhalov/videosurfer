@@ -1,2 +1,4 @@
 opencv-python
+requests==2.11.1
 clarifai
+pyrebase
