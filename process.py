@@ -47,8 +47,9 @@ def video_to_frames(input_loc, output_loc):
             filename = output_loc + "/" + str(count + 1) + ".jpg"
             cv2.imwrite(filename, frame)
             print(yolo.detect(frame))
-            print(apparel.detect(filename))
-            print(apparel.detect_famous(filename))
+            
+            print(apparel.detect(filename, len(frame), len(frame[0])))
+            print(apparel.detect_famous(filename, len(frame), len(frame[0])))
             frames = frames + 1
         # If there are no more frames left
         if (count > (video_length-1)):
