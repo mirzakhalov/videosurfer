@@ -135,3 +135,6 @@ dmypy.json
 .pytype/
 
 yolo-coco/
+*.swp
+yolo-object-detection/
+.vscode
