@@ -5,17 +5,9 @@ import os
 from yolo import Yolo
 from apparel import Apparel
 import pyrebase
+import json
 
-config = {
-    "apiKey": "AIzaSyA5SRwsOGxvkL6DLA1DFmL7iIUAVxrTsr0",
-    "authDomain": "videosurfer-bad23.firebaseapp.com",
-    "databaseURL": "https://videosurfer-bad23.firebaseio.com",
-    "projectId": "videosurfer-bad23",
-    "storageBucket": "videosurfer-bad23.appspot.com",
-    "messagingSenderId": "931651516843",
-    "appId": "1:931651516843:web:c5ad09b8a2a6abffeb3aee",
-    "measurementId": "G-RCC2W1BE68"
-}
+config = json.loads(open('secret/config.json').read())
 
 firebase = pyrebase.initialize_app(config)
 

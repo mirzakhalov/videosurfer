@@ -138,3 +138,4 @@ yolo-coco/
 *.swp
 yolo-object-detection/
 .vscode
+secret/
