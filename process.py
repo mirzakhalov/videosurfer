@@ -21,7 +21,16 @@ firebase = pyrebase.initialize_app(config)
 
 # # build paths
 db = firebase.database()
+stg = firebase.storage()
 
+def add_fb(frames, ls, bb, out_dir, in_dir):
+    for i, el in enumerate(ls):
+        db.child(f'{out_dir}/{in_dir}/{el}/{frames}').push({
+            "y_min": bb[i][0],
+            "y_max": bb[i][1],
+            "x_min": bb[i][2],
+            "x_max": bb[i][3],
+        })
 
 def video_to_frames(input_loc, output_loc):
     """Function to extract frames from input video file
@@ -64,8 +73,12 @@ def video_to_frames(input_loc, output_loc):
             # Write the results back to output location.
             filename = output_loc + "/" + str(count + 1) + ".jpg"
             cv2.imwrite(filename, frame)
-            print(yolo.detect(frame))
 
+            stg.child(f'{output_loc}{count+1}.jpg').put(f'{output_loc}{count+1}.jpg')
+            img_url = stg.child(f'{output_loc}{count+1}.jpg').get_url(None)
+            db.child(f'{output_loc}/frames/{frames}/storage_loc').set(img_url)
+
+            print(yolo.detect(frame))
             # FB - Labels
             label_data = dict({})
             label_data[str(frames)] = dict({})
@@ -74,22 +87,22 @@ def video_to_frames(input_loc, output_loc):
                     label_data[str(frames)][label] = 1
                 else:
                     label_data[str(frames)][label] += 1 
-                
-            #db.child(f'{output_loc}/labels').update(label_data)
 
-            
-            items, items_box = apparel.detect(filename, len(frame), len(frame[0]))
-            item_obj = dict({})
-            item_obj[str(frames)] = dict({})
+            db.child(f'{output_loc}/labels').update(label_data)
+
             # FB - Items
-            for i, item in enumerate(items):
-                if item not in item_obj[str(frames)]:
-                    pass
+            items, items_box = apparel.detect(filename, len(frame), len(frame[0]))
+            add_fb(frames, items, items_box, output_loc, 'ebay')
+
+            # FB - Famous
+            celebs, celebs_box = apparel.detect(filename, len(frame), len(frame[0]))
+            add_fb(frames, celebs, celebs_box, output_loc, 'celebrities')
+
             print(items)
-            print(apparel.detect_famous(filename, len(frame), len(frame[0])))
             print(frames)
             
             frames = frames + 1
+
         # If there are no more frames left
         if (count > (video_length-1)):
             # Log the time again
