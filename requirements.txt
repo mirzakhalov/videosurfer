@@ -1,4 +1,4 @@
-opencv-python
+opencv-python==4.1.2.30
 clarifai
 moviepy
 google-cloud-speech

@@ -78,12 +78,12 @@ class Transcribe:
             # Each alternative is a different possible transcription
             # and has its own confidence score.
             for alternative in speech_transcription.alternatives:
-                print('Alternative level information:')
+                #print('Alternative level information:')
 
-                print('Transcript: {}'.format(alternative.transcript))
-                print('Confidence: {}\n'.format(alternative.confidence))
+                #print('Transcript: {}'.format(alternative.transcript))
+                #print('Confidence: {}\n'.format(alternative.confidence))
 
-                print('Word level information:')
+                #print('Word level information:')
                 for word_info in alternative.words:
                     word = word_info.word
                     f_word = ''.join(filter(str.isalpha, word))
@@ -95,8 +95,4 @@ class Transcribe:
                     en_time = int((end_time.seconds + end_time.nanos * 1e-9) * 10)
                     fb_push_obj = {}
                     fb_push_obj[str(st_time)] = en_time
-                    print('\t{}s - {}s: {}'.format(
-                        start_time.seconds + start_time.nanos * 1e-9,
-                        end_time.seconds + end_time.nanos * 1e-9,
-                        word))
                     db.child(f'{fb_loc}transcript/{f_word}').update(fb_push_obj)
