@@ -4,9 +4,7 @@ import os
 
 from yolo import Yolo
 from apparel import Apparel
-<<<<<<< HEAD
 from transcribe import Transcribe
-=======
 import pyrebase
 import json
 
@@ -26,7 +24,6 @@ def add_fb(frames, ls, bb, out_dir, in_dir):
             "x_min": bb[i][2],
             "x_max": bb[i][3],
         })
->>>>>>> 39536c27454be01b0dd8ac61d6d155d63a24716c
 
 def video_to_frames(input_loc, output_loc):
     """Function to extract frames from input video file
