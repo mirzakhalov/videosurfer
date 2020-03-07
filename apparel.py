@@ -13,4 +13,4 @@ class Apparel:
     
 
     def detect_famous(self, frame):
-        return self.fmodel.predict_by_filename(frame)
+        return self.model.predict_by_filename(frame)
