@@ -78,7 +78,7 @@ def video_to_frames(input_loc, output_loc):
             #db.child(f'{output_loc}/labels').update(label_data)
 
             
-            items, items_box = apparel.detect(filename)
+            items, items_box = apparel.detect(filename, len(frame), len(frame[0]))
             item_obj = dict({})
             item_obj[str(frames)] = dict({})
             # FB - Items
@@ -86,8 +86,9 @@ def video_to_frames(input_loc, output_loc):
                 if item not in item_obj[str(frames)]:
                     pass
             print(items)
-            print(apparel.detect_famous(filename))
+            print(apparel.detect_famous(filename, len(frame), len(frame[0])))
             print(frames)
+            
             frames = frames + 1
         # If there are no more frames left
         if (count > (video_length-1)):
