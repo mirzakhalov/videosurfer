@@ -4,6 +4,29 @@ import os
 
 from yolo import Yolo
 from apparel import Apparel
+<<<<<<< HEAD
+from transcribe import Transcribe
+=======
+import pyrebase
+import json
+
+config = json.loads(open('secret/config.json').read())
+
+firebase = pyrebase.initialize_app(config)
+
+# # build paths
+db = firebase.database()
+stg = firebase.storage()
+
+def add_fb(frames, ls, bb, out_dir, in_dir):
+    for i, el in enumerate(ls):
+        db.child(f'{out_dir}/{in_dir}/{el}/{frames}').push({
+            "y_min": bb[i][0],
+            "y_max": bb[i][1],
+            "x_min": bb[i][2],
+            "x_max": bb[i][3],
+        })
+>>>>>>> 39536c27454be01b0dd8ac61d6d155d63a24716c
 
 def video_to_frames(input_loc, output_loc):
     """Function to extract frames from input video file
@@ -21,6 +44,14 @@ def video_to_frames(input_loc, output_loc):
 
     yolo = Yolo()
     apparel = Apparel()
+    transcribe = Transcribe()
+
+    print("Converting video to audio...")
+    import moviepy.editor as mp
+    #clip = mp.VideoFileClip("friends.mp4")
+    #clip.audio.write_audiofile("friends.mp3")
+    transcribe.recognize_v2("gs://videosurfer-bad23.appspot.com/friends.mp4")
+    quit()
 
     # Log the time
     time_start = time.time()
@@ -46,10 +77,36 @@ def video_to_frames(input_loc, output_loc):
             # Write the results back to output location.
             filename = output_loc + "/" + str(count + 1) + ".jpg"
             cv2.imwrite(filename, frame)
+
+            stg.child(f'{output_loc}{count+1}.jpg').put(f'{output_loc}{count+1}.jpg')
+            img_url = stg.child(f'{output_loc}{count+1}.jpg').get_url(None)
+            db.child(f'{output_loc}/frames/{frames}/storage_loc').set(img_url)
+
             print(yolo.detect(frame))
-            print(apparel.detect(filename))
-            print(apparel.detect_famous(filename))
+            # FB - Labels
+            label_data = dict({})
+            label_data[str(frames)] = dict({})
+            for label in yolo.detect(frame):
+                if label not in label_data[str(frames)]:
+                    label_data[str(frames)][label] = 1
+                else:
+                    label_data[str(frames)][label] += 1 
+
+            db.child(f'{output_loc}/labels').update(label_data)
+
+            # FB - Items
+            items, items_box = apparel.detect(filename, len(frame), len(frame[0]))
+            add_fb(frames, items, items_box, output_loc, 'ebay')
+
+            # FB - Famous
+            celebs, celebs_box = apparel.detect(filename, len(frame), len(frame[0]))
+            add_fb(frames, celebs, celebs_box, output_loc, 'celebrities')
+
+            print(items)
+            print(frames)
+            
             frames = frames + 1
+
         # If there are no more frames left
         if (count > (video_length-1)):
             # Log the time again

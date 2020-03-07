@@ -1,2 +1,7 @@
 opencv-python
 clarifai
+moviepy
+google-cloud-speech
+google.cloud.videointelligence
+requests==2.11.1
+pyrebase

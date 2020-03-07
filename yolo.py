@@ -32,7 +32,7 @@ class Yolo:
         layerOutputs = self.net.forward(ln)
         end = time.time()
         # show timing information on YOLO
-        print("[INFO] YOLO took {:.6f} seconds".format(end - start))
+       # print("[INFO] YOLO took {:.6f} seconds".format(end - start))
 
 
         # initialize our lists of detected bounding boxes, confidences, and
@@ -85,7 +85,7 @@ class Yolo:
         #         text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
         #         cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
         #             0.5, color, 2)
-        # # show the output image
+        # show the output image
         # cv2.imshow("Image", image)
         # cv2.waitKey(0)
 
