@@ -1,6 +1,7 @@
 import cv2
 import time
 import os
+import shutil
 import threading
 
 from yolo import Yolo
@@ -47,11 +48,11 @@ def get_frame_features_ls(ls, offset, output_loc, yolo, apparel):
 
 
 def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
-    filename = output_loc + "/" + str(frame_no + 1) + ".jpg"
+    filename = f'{output_loc}{block_no}.jpg'
     frame = cv2.imread(filename)
 
-    stg.child(f'{output_loc}{frame_no+1}.jpg').put(f'{output_loc}{frame_no+1}.jpg')
-    img_url = stg.child(f'{output_loc}{frame_no+1}.jpg').get_url(None)
+    stg.child(filename).put(filename)
+    img_url = stg.child(filename).get_url(None)
     db.child(f'{output_loc}/frames/{block_no}/storage_loc').set(img_url)
 
     # FB - Labels
@@ -79,6 +80,11 @@ def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
     add_fb(block_no, celebs, celebs_box, output_loc, 'celebrities')
 
     #os.remove(filename)
+
+
+def call_caption(output_loc):
+    # Call Jim's code
+    os.system(f"cd caption && python2 app.py --phase=test --model_file='./models/289999.npy' --beam_size=3 --input_dir='../{output_loc}'")
 
 
 def video_to_frames(input_loc, output_loc):
@@ -139,9 +145,11 @@ def video_to_frames(input_loc, output_loc):
         # Write the results back to output location.
         cv2.imwrite(output_loc + "/" + str(i) + ".jpg", frame)
     
-    # Call Jim's code
-    os.system(f"python2 caption/app.py --phase=test --model_file='./models/289999.npy' --beam_size=3 --input_dir={output_loc}")
-
+    t2 = threading.Thread(
+        target=call_caption, 
+        args=(output_loc,))
+    t2.start()
+    
     sep_ls = sep_list(frame_ls, 8)
     sep_ls_len = []
     for i in range(len(sep_ls)):
@@ -166,8 +174,9 @@ def video_to_frames(input_loc, output_loc):
     print (f"Done extracting frames.\nIt took {time_end-time_start} seconds for conversion")
     print (f"Total Frames: {video_length}. Frames Extracted: {len(frame_ls)}")
     t1.join()
+    t2.join()
     print("Transcription done")
-    #os.rmdir(output_loc)
+    shutil.rmtree(output_loc)
 
 
 if __name__=="__main__":
