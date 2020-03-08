@@ -29,6 +29,7 @@ def other():
         yt = YouTube(request.values['url'])
         videos.append(yt.streams.filter(resolution='720p', file_extension='mp4')[0].download(filename='you.mp4'))
         process.video_to_frames('you.mp4', f"you/")
+        filename = 'you.mp4'
         #print(videos)
         #description = request.values['description']
     else:
@@ -38,7 +39,7 @@ def other():
 
         # videos.append(request.files['video'])
         #description = request.values['description']
-    return {}
+    return filename
 
 @app.route('/favicon.ico')
 def favicon():
@@ -50,6 +51,7 @@ def favicon():
 def search(tp):
     srch = Search()
     data = request.form
+    print(data)
     urls = []
     if tp == 'caption':
         f_no = srch.search_caption(data['filename'], data['inp'])

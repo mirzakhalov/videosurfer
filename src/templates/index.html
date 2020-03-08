@@ -12,6 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-auth.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>       qs
 <link type="text/css" rel="stylesheet" href="./static/simplePagination/simplePagination.css"/>
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
@@ -71,7 +72,16 @@
                             <input class="input1" autocomplete="off" id="url" type="text" name="name" placeholder="Paste the URL">
                             <span class="shadow-input1"></span>
                         </div>
-      
+                        
+                        <div class="dropdown">
+                          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example
+                          <span class="caret"></span></button>
+                          <ul class="dropdown-menu">
+                            <li><a id="shopping" href="#">Shop on Eba</a></li>
+                            <li><a id="caption" href="#">Get Activity</a></li>
+                            <li><a id="transcript" href="#">Get Phrase</a></li>
+                          </ul>
+                        </div>
                         <div class="wrap-input1 validate-input" data-validate = "Message is required">
                             <textarea class="input1" autocomplete="off" id="description" name="message" placeholder="Description"></textarea>
                             <span class="shadow-input1"></span>
