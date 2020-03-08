@@ -10,6 +10,7 @@ import base64
 import sys
 sys.path.append('../')
 import process
+from search import Search
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -37,12 +38,28 @@ def other():
 
         # videos.append(request.files['video'])
         #description = request.values['description']
-    return {} 
+    return {}
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='./static/favicon.icon')
+
+
+@app.route('/search/<tp>', methods=['POST'])
+def search(tp):
+    srch = Search()
+    data = request.form
+    urls = []
+    if tp == 'caption':
+        f_no = srch.search_caption(data['filename'], data['inp'])
+    elif tp == 'shopping':
+        f_no, urls = srch.search_shopping(data['filename'], data['inp'])
+    else:
+        f_no = srch.search_transcript(data['filename'], data['inp'])
+
+    return {'sec_frame': f_no, 'urls': urls}
+
 
 @app.route("/get_ebay_products", methods=['POST'])
 def get_ebay_products():

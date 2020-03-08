@@ -23,7 +23,7 @@ lock = threading.Lock()
 
 def add_fb(frames, ls, bb, out_dir, in_dir):
     for i, el in enumerate(ls):
-        db.child(f'{out_dir}/{in_dir}/{el}/{frames}').push({
+        db.child(f'{out_dir}/{in_dir}/{frames}/{el}').push({
             "y_min": bb[i][0],
             "y_max": bb[i][1],
             "x_min": bb[i][2],
@@ -76,8 +76,9 @@ def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
     add_fb(block_no, items, items_box, output_loc, 'ebay')
 
     # FB - Famous
-    celebs, celebs_box = apparel.detect_famous(filename, len(frame), len(frame[0]))
-    add_fb(block_no, celebs, celebs_box, output_loc, 'celebrities')
+    celebs, _ = apparel.detect_famous(filename, len(frame), len(frame[0]))
+    for celeb in celebs:
+        db.child(f'{output_loc}/celebrities/{block_no}/{celeb}').set(True)
 
     #os.remove(filename)
 
@@ -175,7 +176,7 @@ def video_to_frames(input_loc, output_loc):
     print (f"Total Frames: {video_length}. Frames Extracted: {len(frame_ls)}")
     t1.join()
     t2.join()
-    print("Transcription done")
+    print(f"Transcription done. Time Spent: {time.time()-time_start}")
     shutil.rmtree(output_loc)
 
 
