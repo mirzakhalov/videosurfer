@@ -78,7 +78,7 @@ def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
     celebs, celebs_box = apparel.detect_famous(filename, len(frame), len(frame[0]))
     add_fb(block_no, celebs, celebs_box, output_loc, 'celebrities')
 
-    os.remove(filename)
+    #os.remove(filename)
 
 
 def video_to_frames(input_loc, output_loc):
@@ -109,9 +109,6 @@ def video_to_frames(input_loc, output_loc):
         target=transcribe.recognize_v2, 
         args=(f"gs://videosurfer-bad23.appspot.com/videos/{input_loc}", output_loc))
 
-    #transcribe.recognize_v2(f"gs://videosurfer-bad23.appspot.com/videos/{input_loc}", output_loc)
-    #tr_time_end = time.time()
-    #print(f'Transcription Time: {tr_time_end-tr_time_start}\n')
     t1.start()
     # Log the time
     time_start = time.time()
@@ -135,13 +132,16 @@ def video_to_frames(input_loc, output_loc):
     
     
     
-    for frame_no in frame_ls:
+    for i, frame_no in enumerate(frame_ls):
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_no)
         ret, frame = cap.read()
 
         # Write the results back to output location.
-        cv2.imwrite(output_loc + "/" + str(frame_no + 1) + ".jpg", frame)
+        cv2.imwrite(output_loc + "/" + str(i) + ".jpg", frame)
     
+    # Call Jim's code
+    os.system(f"python2 caption/app.py --phase=test --model_file='./models/289999.npy' --beam_size=3 --input_dir={output_loc}")
+
     sep_ls = sep_list(frame_ls, 8)
     sep_ls_len = []
     for i in range(len(sep_ls)):
@@ -167,7 +167,7 @@ def video_to_frames(input_loc, output_loc):
     print (f"Total Frames: {video_length}. Frames Extracted: {len(frame_ls)}")
     t1.join()
     print("Transcription done")
-    os.rmdir(output_loc)
+    #os.rmdir(output_loc)
 
 
 if __name__=="__main__":
