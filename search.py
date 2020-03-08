@@ -30,7 +30,7 @@ def back_track(times, curr_ind, curr_val, prev_chain=[]):
                 break
 
             if curr_val[1] <= time_b[0] and curr_val[1] >= time_b[0] - 1:
-                new_res.append(back_prop(times, curr_ind + 1, time_b, prev_chain + [curr_val]))
+                new_res.append(back_track(times, curr_ind + 1, time_b, prev_chain + [curr_val]))
 
         return max(new_res, key=len) if new_res != [] else prev_chain + [curr_val]
     
