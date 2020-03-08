@@ -78,7 +78,7 @@ def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
     celebs, celebs_box = apparel.detect_famous(filename, len(frame), len(frame[0]))
     add_fb(block_no, celebs, celebs_box, output_loc, 'celebrities')
 
-    os.remove(filename)
+    #os.remove(filename)
 
 
 def video_to_frames(input_loc, output_loc):
@@ -167,7 +167,7 @@ def video_to_frames(input_loc, output_loc):
     print (f"Total Frames: {video_length}. Frames Extracted: {len(frame_ls)}")
     t1.join()
     print("Transcription done")
-    os.rmdir(output_loc)
+    #os.rmdir(output_loc)
 
 
 if __name__=="__main__":
