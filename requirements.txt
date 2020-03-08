@@ -10,3 +10,5 @@ pytube
 pytube3
 ebaysdk
 bs4
+fuzzywuzzy
+imutils

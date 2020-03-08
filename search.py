@@ -20,17 +20,42 @@ API_ENDPOINT = "https://api.imgur.com/3/image"
 # your API key here 
 headers = {'Authorization': 'Bearer 120517490a8a9e9aa415106ce3694339da0c90c9'}
 
+def back_track(times, curr_ind, curr_val, prev_chain=[]):
+    size = len(times)
+    new_res = []
+
+    if curr_ind < size - 1:
+        for time_b in times[curr_ind + 1]:
+            if curr_val[1] + 1 < time_b[0]:
+                break
+
+            if curr_val[1] <= time_b[0] and curr_val[1] >= time_b[0] - 1:
+                new_res.append(back_track(times, curr_ind + 1, time_b, prev_chain + [curr_val]))
+
+        return max(new_res, key=len) if new_res != [] else prev_chain + [curr_val]
+    
+    else:
+        return prev_chain + [curr_val]
+    
+    return prev_chain + [curr_val] 
+
 
 class Search:
     def __init__(self):
         pass
-    
 
+    def search_transcript(self, filename, inp):
+        words = [''.join(list(filter(str.isalpha, w))).lower() for w in inp.split(' ')]
+        times = [[(int(key)/10, int(value)/10) for key, value in db.child(f'{filename}/transcript/{word}').get().val().items()] for word in words]
 
-    def search_transcript(self, input):
-        pass
+        new_res = []
+        for i, time in enumerate(times[0]):
+            new_res.append(back_track(times, 0, time))
+        
+        path = max(new_res, key=len)
 
-    
+        return path[0][0]
+
 
     def search_caption(self, filename, inp):
         frames = db.child(filename + "/frames/").get()
