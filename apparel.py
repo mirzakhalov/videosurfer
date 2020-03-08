@@ -38,14 +38,15 @@ class Apparel:
         if 'regions' in response['outputs'][0]['data']:
             regions = response['outputs'][0]['data']['regions']
             for region in regions:
-                celebs.append(region['data']['concepts'][0]['name'])
-                bb = region['region_info']['bounding_box']
-                boxes.append([
-                    int(height * bb['top_row']), 
-                    int(height * bb['bottom_row']), 
-                    int(width * bb['left_col']), 
-                    int(width * bb['right_col']) 
-                ])
+                if region['data']['concepts'][0]['value'] > 0.5: 
+                    celebs.append(region['data']['concepts'][0]['name'])
+                    bb = region['region_info']['bounding_box']
+                    boxes.append([
+                        int(height * bb['top_row']), 
+                        int(height * bb['bottom_row']), 
+                        int(width * bb['left_col']), 
+                        int(width * bb['right_col']) 
+                    ])
                 
             
         return celebs, boxes
