@@ -26,6 +26,7 @@ class Apparel:
                     int(width * bb['right_col'])
                 ])
                 items.append(region['data']['concepts'][0]['name'])
+        
         return items, boxes
     
 
