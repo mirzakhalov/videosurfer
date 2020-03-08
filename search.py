@@ -39,6 +39,11 @@ def back_track(times, curr_ind, curr_val, prev_chain=[]):
     
     return prev_chain + [curr_val] 
 
+def hi(filename, word):
+    fb_word = db.child(f'{filename}/transcript/{word}').get().val()
+    if fb_word == None:
+        return []
+    return [(int(key)/10, int(value)/10) for key, value in fb_word.items()]
 
 class Search:
     def __init__(self):
@@ -46,7 +51,7 @@ class Search:
 
     def search_transcript(self, filename, inp):
         words = [''.join(list(filter(str.isalpha, w))).lower() for w in inp.split(' ')]
-        times = [[(int(key)/10, int(value)/10) for key, value in db.child(f'{filename}/transcript/{word}').get().val().items()] for word in words]
+        times = [hi(filename, word) for word in words]
 
         new_res = []
         for i, time in enumerate(times[0]):

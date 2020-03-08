@@ -1,3 +1,5 @@
+var isProcessed = false;
+
 (function() {
     // Initialize Firebase
      var frames = []
@@ -63,7 +65,7 @@
                     {
                         var formdata = new FormData();
                         formdata.append('url', video_link)
-                        getUrlVideo(formdata, description) 
+                        getUrlVideo(selectedTask, formdata, description) 
                     }
 
 
@@ -84,22 +86,29 @@
         document.addEventListener('DOMContentLoaded', init, false);
 }());      
     
-function getUrlVideo(data, description) {
-    $.ajax({
-        url:  "/other",
-        type: 'POST',
-        contentType: false,
-        processData: false,
-        data: data,
-        success: function(result) {
-            // Do something with the result,
-            console.log(result)
-            search(selectedTask, result, description)
-        },
-        error: function(e) {
-            console.log(e);
-        },
-    });
+function getUrlVideo(selectedTask, data, description) {
+    if(isProcessed) {
+        search(selectedTask, result, description);
+    }
+    else {
+        $.ajax({
+            url:  "/other",
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            data: data,
+            success: function(result) {
+                // Do something with the result,
+                console.log(result)
+                isProcessed = true;
+                search(selectedTask, result, description)
+
+            },
+            error: function(e) {
+                console.log(e);
+            },
+        });
+    }
 }
 
 function google(url_to_image){
@@ -370,7 +379,7 @@ var Pagination = {
 
 function search(action, filename, description) {
     var data = new FormData()
-    data.append('filename', filename)
+    data.append('filename', filename.split('.')[0])
     data.append('inp', description)
     $.ajax({
         url:  "/search/" + action,

@@ -58,6 +58,8 @@ def main(args):
 
     input_dir = FLAGS.input_dir
     config.test_image_dir = FLAGS.input_dir
+    config.test_result_dir = FLAGS.input_dir + 'results/'
+    config.test_result_file = FLAGS.input_dir + 'results/results.csv'
 
 
     with tf.Session() as sess:

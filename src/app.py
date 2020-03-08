@@ -27,7 +27,7 @@ def index():
 def other():
     if request.method == 'POST':
         yt = YouTube(request.values['url'])
-        videos.append(yt.streams.filter(resolution='720p', file_extension='mp4')[0].download(filename='you.mp4'))
+        videos.append(yt.streams.filter(resolution='720p', file_extension='mp4')[0].download(filename='you'))
         process.video_to_frames('you.mp4', f"you/")
         filename = 'you.mp4'
         #print(videos)

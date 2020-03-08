@@ -4,7 +4,7 @@ from clarifai.rest import Image, Model
 class Apparel:
 
     def __init__(self):
-        self.app = ClarifaiApp(api_key='b70faf3a718f4f2dad9811835a24cf63')
+        self.app = ClarifaiApp(api_key='986fb613cdcf42d781e69646ce92d7b5')
         self.model = Model(self.app.api, model_id='72c523807f93e18b431676fb9a58e6ad')
         self.fmodel = Model(self.app.api, model_id='e466caa0619f444ab97497640cefc4dc')
 
