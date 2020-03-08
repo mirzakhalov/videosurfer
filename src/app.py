@@ -26,16 +26,17 @@ def index():
 def other():
     if request.method == 'POST':
         yt = YouTube(request.values['url'])
-        videos.append(yt.streams.filter(resolution='720p', file_extension='mp4')[0].download())
-        print(videos)
-        description = request.values['description']
+        videos.append(yt.streams.filter(resolution='720p', file_extension='mp4')[0].download(filename='you.mp4'))
+        process.video_to_frames('you.mp4', f"you/")
+        #print(videos)
+        #description = request.values['description']
     else:
         filename = request.files['video'].filename
         request.files['video'].save(filename)
         process.video_to_frames(filename, f"{filename.split('.')[0]}/")
 
         # videos.append(request.files['video'])
-        description = request.values['description']
+        #description = request.values['description']
     return {} 
 
 @app.route('/favicon.ico')
