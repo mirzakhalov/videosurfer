@@ -1,0 +1,9 @@
+tensorflow==1.4.0
+numpy==1.13.3
+tqdm==4.43
+matplotlib==2.2.5
+pandas==0.22.0
+pyrebase
+scikit-image==0.13.1
+nltk==3.4
+opencv-python==3.4.0.12

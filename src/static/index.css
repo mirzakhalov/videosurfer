@@ -1,0 +1,44 @@
+.postCover img
+{
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    border: 2px transparent;
+    border-radius: 5px;
+}
+.postCover
+{
+    font-family: 'Montserrat';
+    border: 2px #C0C0C0;
+    border-radius: 8px;
+    display: inline-block;
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+.coverPrice{
+    height: 60%;
+    font-size: 22px;
+    font-weight: bold;
+    color: #000;
+}
+.cover
+{
+    padding: 5px;
+    text-align: center
+}
+.postCover .name
+{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.postCover .deliveryEstimate
+{
+    color: #686868;
+}
+.postCover:hover{
+    -webkit-box-shadow: 0 0 5px 2px #808080;
+    -moz-box-shadow: 0 0 5px 2px #808080;
+    box-shadow: 0 0 5px 2px #808080;
+}

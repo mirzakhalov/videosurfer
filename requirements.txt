@@ -8,3 +8,5 @@ pyrebase
 flask
 pytube
 pytube3
+ebaysdk
+bs4
