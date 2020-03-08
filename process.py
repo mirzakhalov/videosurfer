@@ -41,9 +41,9 @@ def sep_list(lis, num_parts):
     return out
 
 
-def get_frame_features_ls(ls, output_loc, yolo, apparel):
+def get_frame_features_ls(ls, offset, output_loc, yolo, apparel):
     for block_no, frame_no in enumerate(ls):
-        get_frame_features(output_loc, yolo, apparel, block_no, frame_no)
+        get_frame_features(output_loc, yolo, apparel, block_no + offset, frame_no)
 
 
 def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
@@ -56,26 +56,29 @@ def get_frame_features(output_loc, yolo, apparel, block_no, frame_no):
 
     # FB - Labels
     label_data = dict({})
-    label_data[str(block_no)] = dict({})
     
     lock.acquire()
     labels = yolo.detect(frame)
     lock.release()
     for label in labels:
-        if label not in label_data[str(block_no)]:
-            label_data[str(block_no)][label] = 1
+        if label not in label_data:
+            label_data[label] = {}
+            label_data[label][str(block_no)] = 1
         else:
-            label_data[str(block_no)][label] += 1 
+            label_data[label][str(block_no)] += 1 
 
-    db.child(f'{output_loc}/labels').update(label_data)
+    for key in label_data:
+        db.child(f'{output_loc}/labels/{key}').update(label_data[key])
 
     # FB - Items
     items, items_box = apparel.detect(filename, len(frame), len(frame[0]))
     add_fb(block_no, items, items_box, output_loc, 'ebay')
 
     # FB - Famous
-    celebs, celebs_box = apparel.detect(filename, len(frame), len(frame[0]))
+    celebs, celebs_box = apparel.detect_famous(filename, len(frame), len(frame[0]))
     add_fb(block_no, celebs, celebs_box, output_loc, 'celebrities')
+
+    os.remove(filename)
 
 
 def video_to_frames(input_loc, output_loc):
@@ -97,12 +100,19 @@ def video_to_frames(input_loc, output_loc):
     transcribe = Transcribe()
     
     # Get Transcription
-    tr_time_start = time.time()
+    
+    #tr_time_start = time.time()
     stg.child(f'videos/{input_loc}').put(input_loc)
-    transcribe.recognize_v2(f"gs://videosurfer-bad23.appspot.com/videos/{input_loc}", output_loc)
-    tr_time_end = time.time()
-    print(f'Transcriotion Time: {tr_time_end-tr_time_start}')
+    
+    threads = []
+    t1 = threading.Thread(
+        target=transcribe.recognize_v2, 
+        args=(f"gs://videosurfer-bad23.appspot.com/videos/{input_loc}", output_loc))
 
+    #transcribe.recognize_v2(f"gs://videosurfer-bad23.appspot.com/videos/{input_loc}", output_loc)
+    #tr_time_end = time.time()
+    #print(f'Transcription Time: {tr_time_end-tr_time_start}\n')
+    t1.start()
     # Log the time
     time_start = time.time()
     # Start capturing the feed
@@ -123,23 +133,27 @@ def video_to_frames(input_loc, output_loc):
         frame_ls.append(frame_ls_el)
         frame_ls_el += critical_frame
     
-    #chunks = [frame_ls[x:x+100] for x in range(0, len(frame_ls), 100)]
     
-    #chunk = frame_ls
-    threads = []
-
+    
     for frame_no in frame_ls:
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_no)
         ret, frame = cap.read()
 
         # Write the results back to output location.
         cv2.imwrite(output_loc + "/" + str(frame_no + 1) + ".jpg", frame)
-
-    sep_ls = sep_list(frame_ls, 10)
+    
+    sep_ls = sep_list(frame_ls, 8)
+    sep_ls_len = []
+    for i in range(len(sep_ls)):
+        if i == 0:
+            sep_ls_len.append(0)
+        else:
+            sep_ls_len.append(len(sep_ls[i-1]) + sep_ls_len[i-1])
+    
     print(f'Time Before Thread: {time.time()-time_start}')
 
-    for ls in sep_ls:
-        t = threading.Thread(target=get_frame_features_ls, args=(ls, output_loc, yolo, apparel))
+    for i, ls in enumerate(sep_ls):
+        t = threading.Thread(target=get_frame_features_ls, args=(ls, sep_ls_len[i], output_loc, yolo, apparel))
         t.start()
         threads.append(t)
 
@@ -151,6 +165,9 @@ def video_to_frames(input_loc, output_loc):
     cap.release()
     print (f"Done extracting frames.\nIt took {time_end-time_start} seconds for conversion")
     print (f"Total Frames: {video_length}. Frames Extracted: {len(frame_ls)}")
+    t1.join()
+    print("Transcription done")
+    os.rmdir(output_loc)
 
 
 if __name__=="__main__":

@@ -136,6 +136,7 @@ dmypy.json
 
 yolo-coco/
 *.swp
+*.zip
 yolo-object-detection/
 .vscode
 secret/
