@@ -3,7 +3,7 @@ clarifai
 moviepy
 google-cloud-speech
 google-cloud-videointelligence
-requests==2.11.1
+requests==2.20.0
 pyrebase
 flask
 pytube
