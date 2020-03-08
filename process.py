@@ -23,7 +23,7 @@ lock = threading.Lock()
 
 def add_fb(frames, ls, bb, out_dir, in_dir):
     for i, el in enumerate(ls):
-        db.child(f'{out_dir}/{in_dir}/{el}/{frames}').push({
+        db.child(f'{out_dir}/{in_dir}/{frames}/{el}').push({
             "y_min": bb[i][0],
             "y_max": bb[i][1],
             "x_min": bb[i][2],
