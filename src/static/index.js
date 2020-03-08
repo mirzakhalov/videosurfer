@@ -14,8 +14,6 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);    
 
-        //google()
-
         $(document).on("change", ".file_multi_video", function(evt) {
             var $source = $('#video_here');
             $source[0].src = URL.createObjectURL(this.files[0]);
@@ -23,20 +21,16 @@
         });
 
         var selectedTask = ''
-        document.getElementById('shopping').addEventListener('click', e => {
-            selectedTask = 'shopping'
+        var dropdown = document.getElementById('options')
+        dropdown.addEventListener('change', e => {
+            selectedTask = dropdown.value
         })
-
-        document.getElementById('caption').addEventListener('click', e => {
-            selectedTask = 'caption'
-        })
-
-        document.getElementById('transcript').addEventListener('click', e => {
-            selectedTask = 'transcript'
-        })
-
+        $('#loading').hide();
+        $('#pagination').hide();
         document.getElementById('submit').addEventListener('click', e => {
-            if(selectedTask === '') {
+            //$('#form').hide()
+            if(selectedTask !== '') {
+                $('#loading').show()
                 const filesToUpload = document.getElementsByClassName('file_multi_video')[0].files
                 let video_link = document.getElementById('url').value
                 let description = document.getElementById('description').value
@@ -44,31 +38,35 @@
                     alert("Please, either remove the URL or refresh the page to remove the uploaded video")
                 else if(video_link == '' && filesToUpload.length == 0)
                     alert("Please, either paste the URL or upload the video to process")
-                else if(filesToUpload.length != 0) {
-                    var fd = new FormData();
-                    fd.append('video', filesToUpload[0])
-                    $.ajax({
-                        url: '/other',
-                        type: 'PUT',
-                        data: fd,
-                        contentType: false,
-                        processData: false,
-                        success: function(result) {
-                            // Do something with the result,
-                            console.log(result)
-                            doCaption(result, description)
-                        },
-                        error: function(e) {
-                            console.log(e);
-                        },
-                    });
+                else {
+                    if(filesToUpload.length != 0) {
+                        var fd = new FormData();
+                        fd.append('video', filesToUpload[0])
+                        $.ajax({
+                            url: '/other',
+                            type: 'PUT',
+                            data: fd,
+                            contentType: false,
+                            processData: false,
+                            success: function(result) {
+                                // Do something with the result,
+                                console.log(result)
+                                search(selectedTask, result, description)
+                            },
+                            error: function(e) {
+                                console.log(e);
+                            },
+                        });
 
-                }
-                else 
-                {
-                    var formdata = new FormData();
-                    formdata.append('url', video_link)
-                    getUrlVideo(formdata) 
+                    }
+                    else 
+                    {
+                        var formdata = new FormData();
+                        formdata.append('url', video_link)
+                        getUrlVideo(formdata, description) 
+                    }
+
+
                 }
             }
             else 
@@ -86,7 +84,7 @@
         document.addEventListener('DOMContentLoaded', init, false);
 }());      
     
-function getUrlVideo(data) {
+function getUrlVideo(data, description) {
     $.ajax({
         url:  "/other",
         type: 'POST',
@@ -96,6 +94,7 @@ function getUrlVideo(data) {
         success: function(result) {
             // Do something with the result,
             console.log(result)
+            search(selectedTask, result, description)
         },
         error: function(e) {
             console.log(e);
@@ -103,10 +102,10 @@ function getUrlVideo(data) {
     });
 }
 
-function google(){
+function google(url_to_image){
     var xhr = new XMLHttpRequest();
     let google = "https://www.google.com/searchbyimage?"
-    let image_link = "https://i.ebayimg.com/images/g/mwQAAOSw1Tdb80~p/s-l500.jpg"
+    let image_link = url_to_image //"https://i.ebayimg.com/images/g/mwQAAOSw1Tdb80~p/s-l500.jpg"
     let url_specify = "site=search&image_url="
     xhr.open("GET", google + url_specify + image_link, true);
     xhr.onload = function (e) {
@@ -369,12 +368,12 @@ var Pagination = {
 * * * * * * * * * * * * * * * * */
 
 
-function doCaption(filename, description) {
+function search(action, filename, description) {
     var data = new FormData()
     data.append('filename', filename)
     data.append('inp', description)
     $.ajax({
-        url:  "/search/caption",
+        url:  "/search/" + action,
         type: 'POST',
         contentType: false,
         processData: false,
@@ -389,79 +388,22 @@ function doCaption(filename, description) {
     });
 }
 
-function dropdown() {
-    var x, i, j, selElmnt, a, b, c;
-/* Look for any elements with the class "custom-select": */
-x = document.getElementsByClassName("custom-select");
-for (i = 0; i < x.length; i++) {
-  selElmnt = x[i].getElementsByTagName("select")[0];
-  /* For each element, create a new DIV that will act as the selected item: */
-  a = document.createElement("DIV");
-  a.setAttribute("class", "select-selected");
-  a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-  x[i].appendChild(a);
-  /* For each element, create a new DIV that will contain the option list: */
-  b = document.createElement("DIV");
-  b.setAttribute("class", "select-items select-hide");
-  for (j = 1; j < selElmnt.length; j++) {
-    /* For each option in the original select element,
-    create a new DIV that will act as an option item: */
-    c = document.createElement("DIV");
-    c.innerHTML = selElmnt.options[j].innerHTML;
-    c.addEventListener("click", function(e) {
-        /* When an item is clicked, update the original select box,
-        and the selected item: */
-        var y, i, k, s, h;
-        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-        h = this.parentNode.previousSibling;
-        for (i = 0; i < s.length; i++) {
-          if (s.options[i].innerHTML == this.innerHTML) {
-            s.selectedIndex = i;
-            h.innerHTML = this.innerHTML;
-            y = this.parentNode.getElementsByClassName("same-as-selected");
-            for (k = 0; k < y.length; k++) {
-              y[k].removeAttribute("class");
-            }
-            this.setAttribute("class", "same-as-selected");
-            break;
-          }
+function processResponse(action, result) {
+    if(action === "shopping")
+    {
+        var all_image_links = result['urls']
+        for(var i in all_image_links)
+        {
+            (google(url_to_image))(i)
         }
-        h.click();
-    });
-    b.appendChild(c);
-  }
-  x[i].appendChild(b);
-  a.addEventListener("click", function(e) {
-    /* When the select box is clicked, close any other select boxes,
-    and open/close the current select box: */
-    e.stopPropagation();
-    closeAllSelect(this);
-    this.nextSibling.classList.toggle("select-hide");
-    this.classList.toggle("select-arrow-active");
-  });
-}
-
-function closeAllSelect(elmnt) {
-  /* A function that will close all select boxes in the document,
-  except the current select box: */
-  var x, y, i, arrNo = [];
-  x = document.getElementsByClassName("select-items");
-  y = document.getElementsByClassName("select-selected");
-  for (i = 0; i < y.length; i++) {
-    if (elmnt == y[i]) {
-      arrNo.push(i)
-    } else {
-      y[i].classList.remove("select-arrow-active");
     }
-  }
-  for (i = 0; i < x.length; i++) {
-    if (arrNo.indexOf(i)) {
-      x[i].classList.add("select-hide");
+    
+    frames = result['sec_frame']
+    for(var j in document.getElementsByClassName('wrap-input1')){
+        j.style.display = "none"
     }
-  }
-}
 
-/* If the user clicks anywhere outside the select box,
-then close all select boxes: */
-document.addEventListener("click", closeAllSelect);
-}
+    document.getElementsByClassName('container-contact1-form-btn')[0].style.display = "none"
+    $('#pagination').show()
+    $('#loading').hide()
+}   
