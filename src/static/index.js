@@ -21,12 +21,14 @@ var isProcessed = false;
             $source[0].src = URL.createObjectURL(this.files[0]);
             $source.parent()[0].load();
         });
-
         var selectedTask = ''
         var dropdown = document.getElementById('options')
         dropdown.addEventListener('change', e => {
             selectedTask = dropdown.value
         })
+
+        google("https://i.imgur.com/wkAwL3J.jpg")
+
         $('#loading').hide();
         document.getElementById('submit').addEventListener('click', e => {
             if(selectedTask !== '') {
@@ -43,7 +45,7 @@ var isProcessed = false;
                         var fd = new FormData();
                         fd.append('video', filesToUpload[0])
                         $.ajax({
-                            url: '/other',
+                            url: '/process_video',
                             type: 'PUT',
                             data: fd,
                             contentType: false,
@@ -80,7 +82,7 @@ function getUrlVideo(selectedTask, data, description) {
     }
     else {
         $.ajax({
-            url:  "/other",
+            url:  "/process_video",
             type: 'POST',
             contentType: false,
             processData: false,
@@ -101,10 +103,13 @@ function getUrlVideo(selectedTask, data, description) {
 
 function google(url_to_image){
     var xhr = new XMLHttpRequest();
+    var formData = new FormData();
     let google = "https://www.google.com/searchbyimage?"
     let image_link = url_to_image 
     let url_specify = "site=search&image_url="
-    xhr.open("GET", google + url_specify + image_link, true);
+    var request_url = google + url_specify + image_link
+    formData.append('url', request_url) 
+    xhr.open("POST", '/google');
     xhr.onload = function (e) {
     if (xhr.readyState === 4) {
         if (xhr.status === 200) {
@@ -120,14 +125,16 @@ function google(url_to_image){
     xhr.onerror = function (e) {
     console.error(xhr.statusText);
     };
-    xhr.send(null); 
+    xhr.send(formData); 
 }
 
 function getEbayDescription(url) {
     console.log(url)
     let ebay_descriptions = ''
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
+    var formData = new FormData();
+    formData.append('url', url)
+    xhr.open("POST", '/google', true);
     xhr.onload = function (e) {
     if (xhr.readyState === 4) {
         if (xhr.status === 200) {
@@ -158,7 +165,7 @@ function getEbayDescription(url) {
     xhr.onerror = function (e) {
     console.error(xhr.statusText);
     };
-    xhr.send(null); 
+    xhr.send(formData); 
 }
 
 function getEbayProducts(data) {
