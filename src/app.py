@@ -23,22 +23,17 @@ videos = []
 def index():
    return render_template("index.html")
 
-@app.route("/other", methods=['PUT', 'POST'])
-def other():
+@app.route("/process_video", methods=['PUT', 'POST'])
+def process_video():
     if request.method == 'POST':
         yt = YouTube(request.values['url'])
         videos.append(yt.streams.filter(resolution='720p', file_extension='mp4')[0].download(filename='you'))
         process.video_to_frames('you.mp4', f"you/")
         filename = 'you.mp4'
-        #print(videos)
-        #description = request.values['description']
     else:
         filename = request.files['video'].filename
         request.files['video'].save(filename)
         process.video_to_frames(filename, f"{filename.split('.')[0]}/")
-
-        # videos.append(request.files['video'])
-        #description = request.values['description']
     return filename
 
 @app.route('/favicon.ico')
@@ -62,6 +57,21 @@ def search(tp):
 
     return {'sec_frame': f_no, 'urls': urls}
 
+@app.route('/google', methods=['POST'])
+def google():
+    headers_Get = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+    }
+    s = req.Session()
+    url = request.values['url']
+    r = s.get(url, headers=headers_Get)
+    return r.content
 
 @app.route("/get_ebay_products", methods=['POST'])
 def get_ebay_products():
